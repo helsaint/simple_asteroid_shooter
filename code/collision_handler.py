@@ -7,13 +7,13 @@ class LaserMeteorCollision:
         self.meteors = meteors
         self.explosion_sound = explosion_sound
 
-    '''Check for collisions between meteor sprites and
-    laser sprites. Because we are reusing sprites
+    '''Check for collisions between meteor-sprites and
+    laser-sprites. Because we are reusing sprites
     we have to keep track of which sprite is active
     and which isn't. Once a laser hits a meteor both
     need to not appear anymore so we set their attribute
     active to False.'''
-    def _check_collision(self) -> bool:
+    def _check_meteor_laser_collision(self) -> bool:
         for laser in self.lasers:
             if not(laser.active):
                 continue
@@ -27,11 +27,13 @@ class LaserMeteorCollision:
                     meteor.active = False
                     meteor.destroyed_by_player = True
                     # dispatch collision event
-                    dispatcher.dispatch_event("collision", 
+                    dispatcher.dispatch_event("meteor destroyed", 
                                               {"explosion_sound": self.explosion_sound,
                                                "increment score": 1,
                                                "pos": (meteor.pos.x, meteor.pos.y),
                                                })
+                    
+                
                     return True
         return False            
         
@@ -40,5 +42,5 @@ class LaserMeteorCollision:
     use the sprite parent class to update and draw
     the animations.'''
     def update(self,dt): 
-        if self._check_collision():
+        if self._check_meteor_laser_collision():
             pass

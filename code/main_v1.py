@@ -8,12 +8,17 @@ from supers.super_sprite import SpriteGroup
 from visual_effects.effect_manager import VisualEffectManager
 from events.event_dispatcher import dispatcher
 from audio.play_sound import play_sound_effect
+from game_state_manager import load_levels_config, GameStateManager
 
 class Game:
     def __init__(self):
         # Initialize audio visual elements
         init_window(WINDOW_WIDTH,WINDOW_HEIGHT, "Space Shooter")
         init_audio_device()
+
+        # Load level configuration and game state management
+        level_config_data = load_levels_config()
+        self.game_state_manager = GameStateManager(level_config_data)
 
         # import graphics and audio files
         from load_resources import audio_files, static_images, animation_files, font_files
@@ -33,19 +38,15 @@ class Game:
             self.star_group.add(Star(Vector2(randint(0, WINDOW_WIDTH),
                                              randint(0, WINDOW_HEIGHT)),
                                              PLAYER_SPEED, self.static_images['star']))
-        # set up meteors to shoot    
-        meteor_1 = Meteor(Vector2(100,0), Vector2(0,1),
-                             self.static_images['meteor'])
-        meteor_2 = Meteor(Vector2(500,0), Vector2(0,1),
-                             self.static_images['meteor'])
-        meteor_3 = Meteor(Vector2(700,0), Vector2(0,1),
-                             self.static_images['meteor'])
-        
-        # Sprite Groups used to manage multiple sprites
+       
+        '''
+        Set up meteors to shoot and add them to the meteor group
+        '''
         self.meteor_group = SpriteGroup()
-        self.meteor_group.add(meteor_1)
-        self.meteor_group.add(meteor_2)
-        self.meteor_group.add(meteor_3)
+        for i in range(self.game_state_manager.initial_meteor_pool_size):
+            temp_meteor = Meteor(Vector2(randint(0, WINDOW_WIDTH),0),
+                                 Vector2(0,1), self.static_images['meteor'])
+            self.meteor_group.add(temp_meteor)
 
         # set up handler for collisions
         self.laser_meteor_collision = LaserMeteorCollision(self.spaceship.active_lasers,
@@ -55,9 +56,9 @@ class Game:
         self.explosion_animation = VisualEffectManager(self.animation_files['explosion'])
         
         # set up events for event dispatcher
-        dispatcher.register_event("collision", play_sound_effect)
-        dispatcher.register_event("collision", self.score_display.increment_score)
-        dispatcher.register_event("collision",
+        dispatcher.register_event("meteor destroyed", play_sound_effect)
+        dispatcher.register_event("meteor destroyed", self.score_display.increment_score)
+        dispatcher.register_event("meteor destroyed",
                                   self.explosion_animation.set_explosion_animation)
         
         play_music_stream(self.audio_files['background_music'])
