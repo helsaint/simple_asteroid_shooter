@@ -3,6 +3,7 @@ from sprites.meteor import Meteor
 from sprites.stars import Star
 from sprites.spaceship import Spaceship
 from text.score import ScoreDisplay
+from text.level_complete import LevelComplete
 from collision_handler import LaserMeteorCollision
 from supers.super_sprite import SpriteGroup
 from visual_effects.effect_manager import VisualEffectManager
@@ -20,13 +21,16 @@ class Game:
         level_config_data = load_levels_config()
         self.game_state_manager = GameStateManager(level_config_data)
 
+        # Game state flag
+        self.is_level_complete = False
+
         # import graphics and audio files
         from load_resources import audio_files, static_images, animation_files, font_files
         self.audio_files = audio_files
         self.static_images = static_images
         self.animation_files = animation_files
         self.score_display = ScoreDisplay(font_files['font'][0])
-        
+        self.level_complete = LevelComplete(font_files['font'][0])
 
         # Import sprites
         self.spaceship = Spaceship(Vector2(WINDOW_WIDTH/2, WINDOW_HEIGHT - 100), 
@@ -67,6 +71,8 @@ class Game:
 
     # Update sprites
     def update(self, dt):
+        if self.is_level_complete:
+            return
         self.laser_meteor_collision.update(dt)
         self.spaceship.update(dt)
         self.star_group.update(dt)
@@ -74,6 +80,12 @@ class Game:
         self.explosion_animation.update(dt)
         update_music_stream(self.audio_files['background_music'])
 
+         # This check for level completion happens every frame
+        if self.game_state_manager.is_level_complete and not self.is_level_complete:
+            self.is_level_complete = True
+            # Optional: Add logic to save score, etc. before pausing
+
+    # Draw sprites
     def draw(self):
         begin_drawing()
         clear_background(BG_COLOR)
@@ -81,8 +93,12 @@ class Game:
         self.spaceship.draw()
         self.meteor_group.draw()
         self.score_display.display_score()
+        if self.is_level_complete:
+            self.level_complete.draw()
+
         end_drawing()
 
+    # Unload resources
     def unload_resources(self):
         unload_music_stream(self.audio_files['background_music'])
         unload_texture(self.static_images['star'])

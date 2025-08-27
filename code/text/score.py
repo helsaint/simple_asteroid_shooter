@@ -1,4 +1,4 @@
-from settings import draw_text_ex, TEXT_LOCATION, TEXT_FONT_SIZE, TEXT_SPACING, TEXT_COLOR
+from settings import draw_text_ex, SCORE_LOCATION, SCORE_FONT_SIZE, SCORE_SPACING, SCORE_COLOR
 
 class ScoreDisplay:
     def __init__(self, font):
@@ -10,5 +10,5 @@ class ScoreDisplay:
         self.current_score = self.current_score + increment_value
 
     def display_score(self):
-        draw_text_ex(self.font, str(self.current_score), TEXT_LOCATION, 
-                         TEXT_FONT_SIZE,TEXT_SPACING, TEXT_COLOR)
+        draw_text_ex(self.font, str(self.current_score), SCORE_LOCATION, 
+                         SCORE_FONT_SIZE, SCORE_SPACING, SCORE_COLOR)
