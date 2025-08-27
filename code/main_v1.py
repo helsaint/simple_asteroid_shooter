@@ -60,34 +60,48 @@ class Game:
         dispatcher.register_event("meteor destroyed", self.score_display.increment_score)
         dispatcher.register_event("meteor destroyed",
                                   self.explosion_animation.set_explosion_animation)
+        dispatcher.register_event("meteor destroyed",
+                                  self.game_state_manager.increment_score)
         
         play_music_stream(self.audio_files['background_music'])
-    def run(self):
-        while not window_should_close():
-            dt = get_frame_time()
 
-            # update sprites
-            self.laser_meteor_collision.update(dt)
-            self.spaceship.update(dt)
-            self.star_group.update(dt)
-            self.meteor_group.update(dt)
-            self.explosion_animation.update(dt)
-            update_music_stream(self.audio_files['background_music'])
+    # Update sprites
+    def update(self, dt):
+        self.laser_meteor_collision.update(dt)
+        self.spaceship.update(dt)
+        self.star_group.update(dt)
+        self.meteor_group.update(dt)
+        self.explosion_animation.update(dt)
+        update_music_stream(self.audio_files['background_music'])
 
-            # Main Drawing area
-            begin_drawing()
-            clear_background(BG_COLOR)
-            self.star_group.draw()
-            self.spaceship.draw()
-            self.meteor_group.draw()
-            self.score_display.display_score()
-            end_drawing()
+    def draw(self):
+        begin_drawing()
+        clear_background(BG_COLOR)
+        self.star_group.draw()
+        self.spaceship.draw()
+        self.meteor_group.draw()
+        self.score_display.display_score()
+        end_drawing()
 
+    def unload_resources(self):
         unload_music_stream(self.audio_files['background_music'])
         unload_texture(self.static_images['star'])
         unload_texture(self.static_images['ship'])
         unload_texture(self.static_images['meteor'])
         unload_texture(self.static_images['laser'])
+
+    def run(self):
+        while not window_should_close():
+            dt = get_frame_time()
+
+            # update sprites
+            self.update(dt)
+
+            # Main Drawing area
+            self.draw()
+
+        # Unload resources and close window
+        self.unload_resources()
         close_audio_device()
         close_window()
 

@@ -25,5 +25,5 @@ animation_files = {
 
 font_files = {
     'font':[load_font(join(project_folder, 'simple_asteroid_shooting', 'font',
-                           'Stormgace.otf'))]
+                           'Stormfaze.otf'))]
 }

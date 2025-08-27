@@ -1,3 +1,16 @@
 {
-  "initial_meteor_pool_size": 3
+  "levels": [
+    {
+      "level_number": 1,
+      "initial_asteroid_pool_size": 3,
+      "asteroids_to_destroy": 20,
+      "asteroid_texture": "images/meteor.png"
+    },
+    {
+      "level_number": 2,
+      "initial_asteroid_pool_size": 5,
+      "asteroids_to_destroy": 35,
+      "asteroid_texture": "images/meteor.png"
+    }
+  ]
 }
