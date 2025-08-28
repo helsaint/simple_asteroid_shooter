@@ -106,28 +106,31 @@ class Game:
         unload_texture(self.static_images['meteor'])
         unload_texture(self.static_images['laser'])
 
+    def _transition_to_next_level(self):
+        if self.is_level_complete:
+            if is_key_pressed(KEY_ENTER):
+                self.is_level_complete = False
+                self.game_state_manager.transition_to_next_level()
+                # Reset score display for the new level
+                self.score_display.current_score = 0
+                # Reset and add meteors for the new level
+                self.meteor_group.clear()
+                for i in range(self.game_state_manager.initial_meteor_pool_size):
+                    temp_meteor = Meteor(Vector2(randint(0, WINDOW_WIDTH),0),
+                                         Vector2(0,1), self.static_images['meteor'])
+                    self.meteor_group.add(temp_meteor)
+
     def run(self):
         while not window_should_close():
+            if self.game_state_manager.is_game_over:
+                break
             dt = get_frame_time()
-
             # update sprites
             self.update(dt)
-
             # Main Drawing area
             self.draw()
-
-            if self.is_level_complete:
-                if is_key_pressed(KEY_ENTER):
-                    self.is_level_complete = False
-                    self.game_state_manager.transition_to_next_level()
-                    # Reset score display for the new level
-                    self.score_display.current_score = 0
-                    # Reset and add meteors for the new level
-                    self.meteor_group.clear()
-                    for i in range(self.game_state_manager.initial_meteor_pool_size):
-                        temp_meteor = Meteor(Vector2(randint(0, WINDOW_WIDTH),0),
-                                             Vector2(0,1), self.static_images['meteor'])
-                        self.meteor_group.add(temp_meteor)
+            # Transition to next level
+            self._transition_to_next_level()
 
         # Unload resources and close window
         self.unload_resources()
