@@ -73,6 +73,9 @@ class SpriteGroup:
     def add(self, sprite):
         self.sprites.append(sprite)
 
+    def clear(self):
+        self.sprites.clear()
+
     def update(self, dt):
         for sprite in self.sprites:
             sprite.update(dt)
