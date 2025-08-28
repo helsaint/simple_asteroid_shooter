@@ -5,6 +5,7 @@ from sprites.spaceship import Spaceship
 from text.score import ScoreDisplay
 from text.level_complete import LevelComplete
 from collision_handlers.laser_meteor_collisions import LaserMeteorCollision
+from collision_handlers.collision_handler_spatial import LaserMeteorCollision as SpatialLaserMeteorCollision
 from supers.super_sprite import SpriteGroup
 from visual_effects.effect_manager import VisualEffectManager
 from events.event_dispatcher import dispatcher
@@ -54,10 +55,19 @@ class Game:
             self.meteor_group.add(temp_meteor)
 
         # set up handler for collisions
+        '''
         self.laser_meteor_collision = LaserMeteorCollision(self.spaceship.active_lasers,
                                                         self.meteor_group.sprites,
                                                         self.audio_files['explosion_sound'])
-        
+        '''
+        self.laser_meteor_collision = SpatialLaserMeteorCollision(
+            lasers=self.spaceship.active_lasers,
+            meteors=self.meteor_group.sprites,
+            explosion_sound=self.audio_files['explosion_sound'],
+            world_height=WINDOW_HEIGHT,
+            world_width=WINDOW_WIDTH,
+            grid_cell_size=100 # Example cell size, adjust as needed
+        )
         self.explosion_animation = VisualEffectManager(self.animation_files['explosion'])
         
         # set up events for event dispatcher
