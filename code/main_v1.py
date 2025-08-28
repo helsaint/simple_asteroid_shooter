@@ -4,10 +4,11 @@ from sprites.stars import Star
 from sprites.spaceship import Spaceship
 from text.score import ScoreDisplay
 from text.level_complete import LevelComplete
-from collision_handler import LaserMeteorCollision
+from collision_handlers.laser_meteor_collisions import LaserMeteorCollision
 from supers.super_sprite import SpriteGroup
 from visual_effects.effect_manager import VisualEffectManager
 from events.event_dispatcher import dispatcher
+from events.constants import Events
 from audio.play_sound import play_sound_effect
 from game_state_manager import load_levels_config, GameStateManager
 
@@ -60,11 +61,11 @@ class Game:
         self.explosion_animation = VisualEffectManager(self.animation_files['explosion'])
         
         # set up events for event dispatcher
-        dispatcher.register_event("meteor destroyed", play_sound_effect)
-        dispatcher.register_event("meteor destroyed", self.score_display.increment_score)
-        dispatcher.register_event("meteor destroyed",
+        dispatcher.register_event(Events.METEOR_DESTROYED, play_sound_effect)
+        dispatcher.register_event(Events.METEOR_DESTROYED, self.score_display.increment_score)
+        dispatcher.register_event(Events.METEOR_DESTROYED,
                                   self.explosion_animation.set_explosion_animation)
-        dispatcher.register_event("meteor destroyed",
+        dispatcher.register_event(Events.METEOR_DESTROYED,
                                   self.game_state_manager.increment_score)
         
         play_music_stream(self.audio_files['background_music'])

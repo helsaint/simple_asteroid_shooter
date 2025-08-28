@@ -1,6 +1,7 @@
 from settings import check_collision_recs
-from sprites.explosions import Explosions
 from events.event_dispatcher import dispatcher
+from events.constants import Events
+
 class LaserMeteorCollision:
     def __init__(self, lasers, meteors, explosion_sound):
         self.lasers = lasers
@@ -27,14 +28,11 @@ class LaserMeteorCollision:
                     meteor.active = False
                     meteor.destroyed_by_player = True
                     # dispatch collision event
-                    dispatcher.dispatch_event("meteor destroyed", 
+                    dispatcher.dispatch_event(Events.METEOR_DESTROYED, 
                                               {"explosion_sound": self.explosion_sound,
                                                "increment score": 1,
                                                "pos": (meteor.pos.x, meteor.pos.y),
                                                })
-                    
-                
-                    return True
         return False            
         
     '''If a collision happens play explosion sound.
