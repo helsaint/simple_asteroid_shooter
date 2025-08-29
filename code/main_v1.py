@@ -4,9 +4,10 @@ from sprites.stars import Star
 from sprites.spaceship import Spaceship
 from text.score import ScoreDisplay
 from text.level_complete import LevelComplete
+from text.death import GameOver
 #from collision_handlers.laser_meteor_collisions import LaserMeteorCollision
-from collision_handlers.laser_meteor import LaserMeteorCollisionHandler as SpatialLaserMeteorCollision
-#from collision_handlers.collision_handler_spatial import LaserMeteorCollision as SpatialLaserMeteorCollision
+from collision_handlers.laser_meteor import LaserMeteorCollisionHandler
+from collision_handlers.meteor_player import MeteorPlayerCollisionHandler
 from supers.super_sprite import SpriteGroup
 from visual_effects.effect_manager import VisualEffectManager
 from events.event_dispatcher import dispatcher
@@ -26,6 +27,7 @@ class Game:
 
         # Game state flag
         self.is_level_complete = False
+        self.is_game_over = False
 
         # import graphics and audio files
         from load_resources import audio_files, static_images, animation_files, font_files
@@ -33,7 +35,8 @@ class Game:
         self.static_images = static_images
         self.animation_files = animation_files
         self.score_display = ScoreDisplay(font_files['font'][0])
-        self.level_complete = LevelComplete(font_files['font'][0])
+        self.level_complete_screen = LevelComplete(font_files['font'][0])
+        self.game_over_screen = GameOver(font_files['font'][0])
 
         # Import sprites
         self.spaceship = Spaceship(Vector2(WINDOW_WIDTH/2, WINDOW_HEIGHT - 100), 
@@ -55,13 +58,22 @@ class Game:
                                  Vector2(0,1), self.static_images['meteor'])
             self.meteor_group.add(temp_meteor)
 
-        # set up handler for collisions
+        self.player_group = SpriteGroup()
+        self.player_group.add(self.spaceship)
+
+        '''set up handler for sprite by sprite collisions
+            keeping it for potential reversion
+        '''
         '''
         self.laser_meteor_collision = LaserMeteorCollision(self.spaceship.active_lasers,
                                                         self.meteor_group.sprites,
                                                         self.audio_files['explosion_sound'])
         '''
-        self.laser_meteor_collision = SpatialLaserMeteorCollision(
+        '''
+        Initialize collision handlers
+        Note: world dimensions and grid cell size are parameters for the spatial grid system
+        '''
+        self.laser_meteor_collision = LaserMeteorCollisionHandler(
             lasers=self.spaceship.active_lasers,
             meteors=self.meteor_group.sprites,
             collision_sound=self.audio_files['explosion_sound'],
@@ -69,9 +81,19 @@ class Game:
             world_width=WINDOW_WIDTH,
             grid_cell_size=100 # Example cell size, adjust as needed
         )
+        self.meteor_player_collision = MeteorPlayerCollisionHandler(
+            meteors=self.meteor_group.sprites,
+            player=self.player_group.sprites,
+            collision_sound=self.audio_files['explosion_sound'],
+            world_height=WINDOW_HEIGHT,
+            world_width=WINDOW_WIDTH,
+            grid_cell_size=100 # Example cell size, adjust as needed
+        )
         self.explosion_animation = VisualEffectManager(self.animation_files['explosion'])
         
-        # set up events for event dispatcher
+        '''
+        Meteor-Laser Collision Events
+        '''
         dispatcher.register_event(Events.METEOR_DESTROYED, play_sound_effect)
         dispatcher.register_event(Events.METEOR_DESTROYED, self.score_display.increment_score)
         dispatcher.register_event(Events.METEOR_DESTROYED,
@@ -79,13 +101,20 @@ class Game:
         dispatcher.register_event(Events.METEOR_DESTROYED,
                                   self.game_state_manager.increment_score)
         
+        '''
+        Meteor-Player Collision Events
+        '''
+        dispatcher.register_event(Events.PLAYER_HIT,
+                                  self.game_state_manager.player_hit)
+        
         play_music_stream(self.audio_files['background_music'])
 
     # Update sprites
     def update(self, dt):
-        if self.is_level_complete:
+        if self.is_level_complete or self.is_game_over:
             return
         self.laser_meteor_collision.update(dt)
+        self.meteor_player_collision.update(dt)
         self.spaceship.update(dt)
         self.star_group.update(dt)
         self.meteor_group.update(dt)
@@ -96,6 +125,8 @@ class Game:
         if self.game_state_manager.is_level_complete and not self.is_level_complete:
             self.is_level_complete = True
             # Optional: Add logic to save score, etc. before pausing
+        if self.game_state_manager.is_game_over and not self.is_game_over:
+            self.is_game_over = True
 
     # Draw sprites
     def draw(self):
@@ -106,7 +137,9 @@ class Game:
         self.meteor_group.draw()
         self.score_display.display_score()
         if self.is_level_complete:
-            self.level_complete.draw()
+            self.level_complete_screen.draw()
+        if self.is_game_over:
+            self.game_over_screen.draw()
 
         end_drawing()
 
@@ -134,6 +167,7 @@ class Game:
 
     def run(self):
         while not window_should_close():
+            
             if self.game_state_manager.is_game_over:
                 break
             dt = get_frame_time()

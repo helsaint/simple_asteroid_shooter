@@ -1,5 +1,5 @@
-from settings import WINDOW_WIDTH, WINDOW_HEIGHT, GOLD, RAYWHITE, BLACK, measure_text
-from settings import draw_text_ex, Fade, draw_rectangle, Vector2
+from settings import WINDOW_WIDTH, WINDOW_HEIGHT, BLACK
+from settings import draw_text_ex, Fade, draw_rectangle
 from settings import LEVEL_TEXT_MESSAGE, LEVEL_TEXT_SIZE, LEVEL_TEXT_WIDTH
 from settings import LEVEL_CONTINUE_MESSAGE, LEVEL_CONTINUE_TEXT_SIZE, LEVEL_CONTINUE_TEXT_WIDTH
 from settings import LEVEL_TEXT_LOCATION, LEVEL_CONTINUE_TEXT_LOCATION

@@ -3,7 +3,6 @@ from settings import draw_texture_v, is_key_down, Vector2Normalize
 from settings import WHITE, KEY_RIGHT, KEY_LEFT, KEY_DOWN, KEY_UP, WINDOW_HEIGHT, WINDOW_WIDTH
 from random import randint
 
-
 ''' 
 Sprite is a parent class for all sprites.
 draw() if the Sprite.active = True draw it.

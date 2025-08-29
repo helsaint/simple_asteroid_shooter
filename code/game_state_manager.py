@@ -56,6 +56,11 @@ class GameStateManager:
         if self.current_score >= self.asteroids_to_destroy:
             self.is_level_complete = True
 
+    def player_hit(self, data):
+        print("Player hit event received", data)
+        self.is_player_dead = True
+        self._is_game_over()
+
     def transition_to_next_level(self):
         self._is_game_over()
         print("Game Over", self.current_level, len(self.config_data['levels']),
